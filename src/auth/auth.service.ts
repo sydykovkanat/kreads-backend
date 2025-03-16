@@ -51,7 +51,10 @@ export class AuthService {
     }
 
     const user = await this.userService.create(dto, avatarUrl);
+
     const tokens = this.issueTokens(user.id);
+
+    console.log(user, tokens);
 
     return { user, ...tokens };
   }
@@ -113,7 +116,7 @@ export class AuthService {
       domain: this.configService.getOrThrow('SERVER_DOMAIN'),
       expires: expiresIn,
       secure: true,
-      sameSite: 'none',
+      sameSite: 'lax',
     });
   }
 
@@ -123,7 +126,7 @@ export class AuthService {
       domain: this.configService.getOrThrow('SERVER_DOMAIN'),
       expires: new Date(0),
       secure: true,
-      sameSite: 'none',
+      sameSite: 'lax',
     });
   }
 }
