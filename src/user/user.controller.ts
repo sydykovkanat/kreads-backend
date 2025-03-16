@@ -1,13 +1,17 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
+import { Auth } from '../auth/decorators/auth.decorator';
+
+import { CurrentUser } from './decorators/current-user.decorator';
 import { UserService } from './user.service';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('/:id')
-  async getById(@Param('id') id: string) {
+  @Auth()
+  @Get('/profile')
+  async getById(@CurrentUser('id') id: string) {
     return this.userService.getById(id);
   }
 }

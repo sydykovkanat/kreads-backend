@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   HttpCode,
@@ -6,8 +7,13 @@ import {
   Req,
   Res,
   UnauthorizedException,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -32,11 +38,34 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('register')
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: diskStorage({
+        destination: './uploads/avatars',
+        filename: (req, file, callback) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          callback(null, uniqueSuffix + extname(file.originalname));
+        },
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
   async register(
     @Body() dto: RegisterDto,
     @Res({ passthrough: true }) res: Response,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    const { refreshToken, ...response } = await this.authService.register(dto);
+    if (!file) {
+      throw new BadRequestException('Аватар обязателен');
+    }
+
+    const avatarUrl = `/uploads/avatars/${file.filename}`;
+
+    const { refreshToken, ...response } = await this.authService.register(
+      dto,
+      avatarUrl,
+    );
 
     this.authService.addRefreshTokenToResponse(res, refreshToken);
 

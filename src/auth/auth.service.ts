@@ -32,7 +32,7 @@ export class AuthService {
     return { user, ...tokens };
   }
 
-  async register(dto: RegisterDto) {
+  async register(dto: RegisterDto, avatarUrl: string) {
     const oldUserByEmail = await this.userService.getByEmail(dto.email);
     const oldUserByUsername = await this.userService.getByUsername(
       dto.username,
@@ -50,7 +50,7 @@ export class AuthService {
       );
     }
 
-    const user = await this.userService.create(dto);
+    const user = await this.userService.create(dto, avatarUrl);
     const tokens = this.issueTokens(user.id);
 
     return { user, ...tokens };

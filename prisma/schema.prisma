@@ -15,6 +15,21 @@ model User {
   email    String @unique
   username String @unique
   password String
+  avatar   String
+
+  posts Post[]
 
   @@map("user")
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  content String
+  images  String[]
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @map("user_id")
 }

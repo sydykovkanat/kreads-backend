@@ -32,12 +32,13 @@ export class UserService {
     });
   }
 
-  async create(dto: RegisterDto) {
+  async create(dto: RegisterDto, avatarUrl: string) {
     return this.prisma.user.create({
       data: {
         username: dto.username,
         email: dto.email,
         password: await hash(dto.password),
+        avatar: avatarUrl,
       },
     });
   }
